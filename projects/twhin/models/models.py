@@ -18,6 +18,7 @@ class TwhinModel(nn.Module):
     super().__init__()
     self.batch_size = data_config.per_replica_batch_size
     self.table_names = [table.name for table in model_config.embeddings.tables]
+    # 単なる EmbeddingBag の list
     self.large_embeddings = LargeEmbeddings(model_config.embeddings)
     self.embedding_dim = model_config.embeddings.tables[0].embedding_dim
     self.num_tables = len(model_config.embeddings.tables)
@@ -31,6 +32,8 @@ class TwhinModel(nn.Module):
     )
 
   def forward(self, batch: EdgeBatch):
+    # B: Batch size
+    # D: embedding dimention
 
     # B x D
     trans_embs = self.all_trans_embs.data[batch.rels]
@@ -48,12 +51,15 @@ class TwhinModel(nn.Module):
     x = torch.sum(x, 1)
 
     # B x 2 x D
+    # [:, 0, :]: source 
+    # [:, 1, :]: target
     x = x.reshape(self.batch_size, 2, self.embedding_dim)
 
     # translated
     translated = x[:, 1, :] + trans_embs
 
     negs = []
+    # 同じ batch 内で negative sampling 
     if self.in_batch_negatives:
       # construct dot products for negatives via matmul
       for relation in range(self.num_relations):
@@ -80,6 +86,7 @@ class TwhinModel(nn.Module):
         sampled_rhs = rhs_matrix[rhs_indices]
 
         # RS
+        # あれ negative sampling に対しては traslate してない？
         negs_rhs = torch.flatten(torch.matmul(lhs_matrix, sampled_rhs.t()))
         negs_lhs = torch.flatten(torch.matmul(rhs_matrix, sampled_lhs.t()))
 

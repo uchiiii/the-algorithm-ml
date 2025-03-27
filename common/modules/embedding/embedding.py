@@ -36,6 +36,7 @@ class LargeEmbeddings(nn.Module):
         )
       )
 
+    # https://pytorch.org/torchrec/modules-api-reference.html#torchrec.modules.embedding_modules.EmbeddingBagCollection
     self.ebc = EmbeddingBagCollection(
       device="meta",
       tables=tables,

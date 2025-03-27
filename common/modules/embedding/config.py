@@ -29,6 +29,7 @@ class EmbeddingBagConfig(base_config.BaseConfig):
   name: str = pydantic.Field(..., description="name of embedding bag")
   num_embeddings: int = pydantic.Field(..., description="size of embedding dictionary")
   embedding_dim: int = pydantic.Field(..., description="size of each embedding vector")
+  # here
   pretrained: EmbeddingSnapshot = pydantic.Field(None, description="Snapshot properties")
   vocab: str = pydantic.Field(
     None, description="Directory to parquet files of mapping from entity ID to table index."
